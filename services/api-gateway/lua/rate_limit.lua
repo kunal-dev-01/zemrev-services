@@ -15,7 +15,8 @@ local RATE_LIMITS = {
     ghostscript = { limit = 10, window = 60, message = "Ghostscript tool allows 10 requests per minute" },
     pymupdf = { limit = 14, window = 60, message = "PyMuPDF tool allows 14 requests per minute" },
     pypdf = { limit = 14, window = 60, message = "PyPDF tool allows 14 requests per minute" },
-    image = { limit = 15, window = 60, message = "Image service allows 15 requests per minute" }
+    image = { limit = 15, window = 60, message = "Image service allows 15 requests per minute" },
+    ocr = { limit = 2, window = 60, message = "OCR service allows 2 requests per minute" }
 }
 
 -- Connect to Redis
@@ -23,7 +24,7 @@ local function connect_redis()
     local red = redis:new()
     red:set_timeouts(1000, 1000, 1000)  -- 1s timeouts
     
-    local ok, err = red:connect("redis-queue", 6379)
+    local ok, err = red:connect("34.107.43.152", 6379)
     if not ok then
         ngx.log(ngx.ERR, "Failed to connect to Redis: ", err)
         return nil, err
