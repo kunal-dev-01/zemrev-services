@@ -1,0 +1,48 @@
+# ============================================================================
+# FILE: services/pdf-service/Dockerfile.dev
+# PURPOSE: Development (Build context = root folder)
+# ============================================================================
+
+FROM python:3.11-slim
+
+# ============================================================================
+# INSTALL GHOSTSCRIPT + BUILD TOOLS
+# ============================================================================
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ghostscript \
+    build-essential pkg-config wget curl vim htop git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Verify Ghostscript
+RUN gs --version
+
+# ============================================================================
+# SETUP APPLICATION
+# ============================================================================
+
+WORKDIR /build
+
+# Copy shared queue package (relative to ROOT context)
+COPY packages/zemrev-queue ./packages/zemrev-queue
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install -e ./packages/zemrev-queue
+
+# Copy service requirements (relative to ROOT context)
+WORKDIR /app
+COPY services/ghostscript-service/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code (relative to ROOT context)
+COPY services/ghostscript-service/ .
+
+# Create upload directory
+RUN mkdir -p /tmp/zemrev_ghostscript_uploads && chmod 777 /tmp/zemrev_ghostscript_uploads
+
+EXPOSE 8001
+
+CMD ["uvicorn", "app.main:app", \
+     "--host", "0.0.0.0", \
+     "--port", "8001", \
+     "--reload", \
+     "--log-level", "debug"]

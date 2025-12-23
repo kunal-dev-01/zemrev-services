@@ -1,0 +1,209 @@
+# ============================================================================
+# FILE: docker-compose.prod.yml
+# PURPOSE: Production - N2 Standard-2 (2 vCPU, 8GB RAM)
+# ============================================================================
+
+version: '3.9'
+
+services:
+  # ==========================================================================
+  # SHARED REDIS QUEUE
+  # ==========================================================================
+  
+  redis-queue:
+    image: redis:7-alpine
+    container_name: zemrev_redis_prod
+    restart: unless-stopped
+    command: |
+      redis-server
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --save ""
+      --appendonly no
+    expose:
+      - "6379"
+    networks:
+      - zemrev_prod
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 512M
+
+  # ==========================================================================
+  # API GATEWAY
+  # ==========================================================================
+  
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    container_name: zemrev_gateway_prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - image-service
+      - ghostscript-service
+      - pymupdf-service
+      - pypdf-service
+      - redis-queue
+    networks:
+      - zemrev_prod
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+  # ==========================================================================
+  # IMAGE SERVICE (PyVIPS)
+  # ==========================================================================
+  
+  image-service:
+    build:
+      context: .
+      dockerfile: services/image-service/Dockerfile
+    container_name: zemrev_image_prod
+    restart: unless-stopped
+    expose:
+      - "8000"
+    env_file:
+      - ./services/image-service/.env.production
+    depends_on:
+      redis-queue:
+        condition: service_healthy
+    networks:
+      - zemrev_prod
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.6'
+          memory: 1.5G
+        reservations:
+          cpus: '0.4'
+          memory: 1G
+
+  # ==========================================================================
+  # GHOSTSCRIPT SERVICE
+  # ==========================================================================
+  
+  ghostscript-service:
+    build:
+      context: .
+      dockerfile: services/ghostscript-service/Dockerfile
+    container_name: zemrev_ghostscript_prod
+    restart: unless-stopped
+    expose:
+      - "8001"
+    env_file:
+      - ./services/ghostscript-service/.env.production
+    depends_on:
+      redis-queue:
+        condition: service_healthy
+    networks:
+      - zemrev_prod
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.6'
+          memory: 1.5G
+        reservations:
+          cpus: '0.4'
+          memory: 1G
+
+  # ==========================================================================
+  # PYMUPDF SERVICE
+  # ==========================================================================
+  
+  pymupdf-service:
+    build:
+      context: .
+      dockerfile: services/pymupdf-service/Dockerfile
+    container_name: zemrev_pymupdf_prod
+    restart: unless-stopped
+    expose:
+      - "8002"
+    env_file:
+      - ./services/pymupdf-service/.env.production
+    depends_on:
+      redis-queue:
+        condition: service_healthy
+    networks:
+      - zemrev_prod
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1.2G
+        reservations:
+          cpus: '0.3'
+          memory: 800M
+
+  # ==========================================================================
+  # PYPDF SERVICE
+  # ==========================================================================
+  
+  pypdf-service:
+    build:
+      context: .
+      dockerfile: services/pypdf-service/Dockerfile
+    container_name: zemrev_pypdf_prod
+    restart: unless-stopped
+    expose:
+      - "8003"
+    env_file:
+      - ./services/pypdf-service/.env.production
+    depends_on:
+      redis-queue:
+        condition: service_healthy
+    networks:
+      - zemrev_prod
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.4'
+          memory: 1G
+        reservations:
+          cpus: '0.2'
+          memory: 512M
+
+networks:
+  zemrev_prod:
+    driver: bridge
