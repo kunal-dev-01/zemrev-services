@@ -6,7 +6,6 @@ PURPOSE: PyMuPDF Service FastAPI app (uses shared queue package)
 """
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
 
@@ -82,18 +81,6 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# ============================================================================
-# CORS
-# ============================================================================
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.get_allowed_origins(),
-    allow_credentials=True,
-    allow_methods=["POST", "GET", "OPTIONS"],
-    allow_headers=["*"],
-    max_age=3600
-)
 
 # ============================================================================
 # ROUTES

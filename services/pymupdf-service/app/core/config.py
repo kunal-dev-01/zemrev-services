@@ -18,7 +18,6 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "info"
     HOST: str = "0.0.0.0"
     PORT: int = 8002
-    ALLOWED_ORIGINS: str = "https://www.zemrev.com,https://zemrev.com,https://api.zemrev.com,http://api.zemrev.com/"
     UPLOAD_DIR: str = "/tmp/zemrev_pymupdf_uploads"
     
     # ========================================================================
@@ -40,11 +39,6 @@ class Settings(BaseSettings):
         case_sensitive=True,
         extra="ignore"
     )
-
-    def get_allowed_origins(self) -> List[str]:
-        if self.ALLOWED_ORIGINS == "*":
-            return ["*"]
-        return [o.strip() for o in self.ALLOWED_ORIGINS.split(",")]
     
     def ensure_upload_dir(self):
         """Create upload directory if it doesn't exist"""
