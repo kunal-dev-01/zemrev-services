@@ -49,6 +49,9 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - /etc/nginx/ssl:/etc/nginx/ssl:ro
+      - ./services/api-gateway/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf     
     depends_on:
       - image-service
       - ghostscript-service
