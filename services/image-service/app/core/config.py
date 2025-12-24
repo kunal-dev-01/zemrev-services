@@ -22,9 +22,6 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
     
-    # CORS
-    ALLOWED_ORIGINS: str = "https://www.zemrev.com,https://zemrev.com,https://api.zemrev.com,http://api.zemrev.com/"
-    
     # PyVips optimization
     VIPS_CONCURRENCY: int = 4
     VIPS_DISC_THRESHOLD: str = "100m"
@@ -37,11 +34,7 @@ class Settings(BaseSettings):
         case_sensitive=True,
         extra="ignore"
     )
-    
-    def get_allowed_origins(self) -> List[str]:
-        if self.ALLOWED_ORIGINS == "*":
-            return ["*"]
-        return [o.strip() for o in self.ALLOWED_ORIGINS.split(",")]
+
 
 settings = Settings()
 

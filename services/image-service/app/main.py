@@ -6,7 +6,6 @@ PURPOSE: Image Service FastAPI app (uses shared queue package)
 """
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
 from app.core.config import settings
@@ -75,18 +74,6 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# ============================================================================
-# CORS
-# ============================================================================
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.get_allowed_origins(),
-    allow_credentials=True,
-    allow_methods=["POST", "GET", "OPTIONS"],
-    allow_headers=["*"],
-    max_age=3600
-)
 
 # ============================================================================
 # ROUTES
@@ -96,11 +83,6 @@ app.include_router(router)
 
 # ============================================================================
 # ROOT ENDPOINTS
-# ============================================================================
-
-# ============================================================================
-# UPDATE: services/image-service/app/main.py
-# Replace the existing @app.get("/") endpoint with this updated version:
 # ============================================================================
 
 @app.get("/")
