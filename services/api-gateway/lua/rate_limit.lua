@@ -1,14 +1,7 @@
--- ============================================================================
--- FILE: services/api-gateway/lua/rate_limit.lua
--- PURPOSE: Redis-based rate limiting with auto-expiry (NO PERMANENT STORAGE)
--- ============================================================================
-
 local redis = require "resty.redis"
 
 local _M = {}
 
--- ⚠️ IMPORTANT: Keys auto-delete after 60 seconds (TTL)
--- No manual cleanup needed, no permanent storage
 
 -- Service-specific rate limits (requests per minute)
 local RATE_LIMITS = {
