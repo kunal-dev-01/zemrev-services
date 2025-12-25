@@ -3,8 +3,6 @@
 # PURPOSE: Production - N2 Standard-2 (2 vCPU, 8GB RAM)
 # ============================================================================
 
-version: '3.9'
-
 services:
   # ==========================================================================
   # SHARED REDIS QUEUE
@@ -101,9 +99,6 @@ services:
         limits:
           cpus: '0.6'
           memory: 1.5G
-        reservations:
-          cpus: '0.4'
-          memory: 1G
 
   # ==========================================================================
   # GHOSTSCRIPT SERVICE
@@ -135,9 +130,6 @@ services:
         limits:
           cpus: '0.6'
           memory: 1.5G
-        reservations:
-          cpus: '0.4'
-          memory: 1G
 
   # ==========================================================================
   # PYMUPDF SERVICE
@@ -169,9 +161,6 @@ services:
         limits:
           cpus: '0.5'
           memory: 1.2G
-        reservations:
-          cpus: '0.3'
-          memory: 800M
 
   # ==========================================================================
   # PYPDF SERVICE
@@ -203,9 +192,6 @@ services:
         limits:
           cpus: '0.4'
           memory: 1G
-        reservations:
-          cpus: '0.2'
-          memory: 512M
 
 networks:
   zemrev_prod:
