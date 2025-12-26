@@ -38,35 +38,41 @@ def parse_page_ranges(pages_str: str) -> List[Tuple[int, int]]:
     return ranges
 
 
-def parse_rotations(rotations_str: str) -> Dict[int, int]:
- 
-    rotations = {}
-    parts = rotations_str.strip().split(',')
-    
+def parse_rotations(rotations_str: str | None) -> Dict[int, int]:
+    if not rotations_str or not rotations_str.strip():
+        return {}
+
+    rotations: Dict[int, int] = {}
+    parts = rotations_str.strip().lower().split(",")
+
     for part in parts:
         part = part.strip()
         if not part:
             continue
-            
-        if ':' not in part:
-            raise ValueError(f"Invalid rotation format (expected 'page:degrees'): {part}")
-        
-        page_str, degrees_str = part.split(':', 1)
-        page_num = int(page_str.strip()) - 1  # Convert to 0-indexed
-        degrees = int(degrees_str.strip())
-        
+
+        if ":" not in part:
+            raise ValueError(f"Invalid rotation format: {part}")
+
+        key, value = part.split(":", 1)
+        key = key.strip()
+        value = value.strip()
+
+        degrees = int(value)
+        if degrees not in (90, 180, 270):
+            raise ValueError("Rotation must be 90, 180, or 270")
+
+        if key == "all":
+            rotations["all"] = degrees
+            return rotations
+
+        page_num = int(key) - 1
         if page_num < 0:
-            raise ValueError(f"Page number must be positive: {page_str}")
-        
-        if degrees not in [90, 180, 270]:
-            raise ValueError(f"Rotation must be 90, 180, or 270 degrees, got: {degrees}")
-        
+            raise ValueError("Page number must be >= 1")
+
         rotations[page_num] = degrees
-    
-    if not rotations:
-        raise ValueError("No valid rotations provided")
-    
+
     return rotations
+
 
 
 # ============================================================================
