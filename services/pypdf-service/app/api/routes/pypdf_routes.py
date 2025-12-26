@@ -13,7 +13,7 @@ from app.models.pypdf_schemas import (
     SplitRequest, RotateRequest, EncryptRequest, DecryptRequest
 )
 
-router = APIRouter(prefix="/api/v1/pdf", tags=["PDF Tools"])
+router = APIRouter(prefix="/api/v1/pypdf", tags=["PDF Tools"])
 
 
 @router.post("/merge", response_class=FileResponse)
