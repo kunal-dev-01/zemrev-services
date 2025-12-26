@@ -1,6 +1,6 @@
 """
 ============================================================================
-FILE: services/pdf-service/app/services/queue_worker.py
+FILE: services/ghostscript-service/app/services/queue_worker.py
 PURPOSE: Background workers for PDF processing (uses shared queue package)
 ============================================================================
 """
